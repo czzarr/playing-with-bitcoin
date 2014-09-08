@@ -30,4 +30,3 @@ console.log('checksum: ', checksum.toString('hex'));
 
 var address = bs58.encode(Buffer.concat([keyhash, checksum]))
 console.log('address:', address);
-
