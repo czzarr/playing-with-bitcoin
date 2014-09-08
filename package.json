@@ -10,6 +10,9 @@
   "license": "MIT",
   "dependencies": {
     "bs58": "^1.2.1",
-    "elliptic": "^0.15.9"
+    "coinkey": "^1.2.0",
+    "coinstring": "^2.0.0",
+    "elliptic": "^0.15.9",
+    "hash.js": "^0.3.2"
   }
 }
