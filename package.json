@@ -1,0 +1,15 @@
+{
+  "name": "cdeep",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Stanislas Marion <stanislas.marion@gmail.com> (http://github.com/czzarr)",
+  "license": "MIT",
+  "dependencies": {
+    "bs58": "^1.2.1",
+    "elliptic": "^0.15.9"
+  }
+}
