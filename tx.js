@@ -184,6 +184,7 @@ function numToVarInt (n) {
   }
 }
 
+https://github.com/bitcoinjs/bitcoinjs-lib/blob/cc98600154bf921acaff2efd907c1fcec08232e8/src/bufferutils.js
 function writeUInt64LE(buffer, value, offset) {
   buffer.writeInt32LE(value & -1, offset)
   buffer.writeUInt32LE(Math.floor(value / 0x100000000), offset + 4)
