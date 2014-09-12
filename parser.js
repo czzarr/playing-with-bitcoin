@@ -11,30 +11,60 @@ function Parser() {
 Parser.prototype.parse = function (buf) {
   var tx = {}
   tx.version = buf.readUInt32LE(0)
-  tx.inputsCount = readVarInt(buf, 4)
-  tx.vin = this.parseIn(buf.slice(tx.inputsCount.offset))
-  tx.outputsCount = readVarInt(buf, tx.inputsCount.offset + tx.vin.offset)
-  tx.vout = this.parseOut(buf.slice(tx.outputsCount.offset))
-  tx.locktime = buf.slice(-4).toString('hex')
+
+  var inputsCount = readVarInt(buf, 4)
+  var offset = inputsCount.offset
+  tx.inputsCount = inputsCount.res
+
+  tx.inputs = new Array(tx.inputsCount)
+  for (var i = 0; i < tx.inputsCount; i++) {
+    var input = this.parseIn(buf.slice(offset))
+    tx.inputs.push(input)
+    offset += input.size
+  }
+
+  var outputsCount = readVarInt(buf, offset)
+  offset = outputsCount.offset
+  tx.outputsCount = outputsCount.res
+
+  tx.outputs = new Array(tx.outputsCount)
+  for (var i = 0; i < tx.outputsCount; i++) {
+    var output = this.parseOut(buf.slice(offset))
+    tx.outputs.push(output)
+    offset += output.size
+  }
+
+  tx.locktime = buf.readUInt32LE(offset)
   return tx
 }
 
 Parser.prototype.parseIn = function (buf) {
   var txin = {}
+
   txin.prevHash = buf.slice(0, 32).toString('hex')
-  txin.outputIndex = buf.slice(32, 36).toString('hex')
-  txin.scriptLength = readVarInt(buf, 36)
-  txin.scriptSig = buf.slice(txin.scriptLength.offset, txin.scriptLength.offset + txin.scriptLength.res).toString('hex')
-  txin.sequence = buf.slice(txin.scriptLength.offset + txin.scriptLength.res, txin.scriptLength.offset + txin.scriptLength.res+4).toString('hex')
-  txin.offset = txin.scriptLength.offset + txin.scriptLength.res + 4
+  txin.outputIndex = buf.readUInt32LE(32)
+
+  var scriptLength = readVarInt(buf, 36)
+  var offset = scriptLength.offset
+  txin.scriptLength = scriptLength.res
+  txin.scriptSig = buf.slice(offset, offset + txin.scriptLength).toString('hex')
+
+  txin.sequence = buf.readUInt32LE(offset + txin.scriptLength)
+  txin.size = offset + txin.scriptLength + 4
   return txin
 }
 
 Parser.prototype.parseOut = function (buf) {
   var txout = {}
+
   txout.value = readUInt64LE(buf, 0)
-  txout.scriptPubKeyLength = readVarInt(buf, 8)
-  txout.scriptPubKey = buf.slice(txout.scriptPubKeyLength.offset, txout.scriptPubKeyLength.offset + txout.scriptPubKeyLength.res).toString('hex')
+
+  var scriptPubKeyLength = readVarInt(buf, 8)
+  var offset = scriptPubKeyLength.offset
+  txout.scriptPubKeyLength = scriptPubKeyLength.res
+  txout.scriptPubKey = buf.slice(offset, offset + txout.scriptPubKeyLength).toString('hex')
+
+  txout.size = offset + txout.scriptPubKeyLength
   return txout
 }
 
