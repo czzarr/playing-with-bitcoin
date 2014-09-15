@@ -1,3 +1,5 @@
+var script = require('./script')
+
 module.exports = Parser
 
 function Parser() {
@@ -45,7 +47,9 @@ Parser.prototype.parseIn = function (buf) {
   var scriptLength = readVarInt(buf, 36)
   var offset = scriptLength.offset
   txin.scriptLength = scriptLength.res
-  txin.scriptSig = buf.slice(offset, offset + txin.scriptLength).toString('hex')
+  txin.scriptSig = {}
+  txin.scriptSig.hex = buf.slice(offset, offset + txin.scriptLength).toString('hex')
+  txin.scriptSig.asm = script.decode(new Buffer(txin.scriptSig.hex, 'hex')).join(' ')
 
   txin.sequence = buf.readUInt32LE(offset + txin.scriptLength)
   txin.size = offset + txin.scriptLength + 4
@@ -60,7 +64,9 @@ Parser.prototype.parseOut = function (buf) {
   var scriptPubKeyLength = readVarInt(buf, 8)
   var offset = scriptPubKeyLength.offset
   txout.scriptPubKeyLength = scriptPubKeyLength.res
-  txout.scriptPubKey = buf.slice(offset, offset + txout.scriptPubKeyLength).toString('hex')
+  txout.scriptPubKey = {}
+  txout.scriptPubKey.hex = buf.slice(offset, offset + txout.scriptPubKeyLength).toString('hex')
+  txout.scriptPubKey.asm = script.decode(new Buffer(txout.scriptPubKey.hex, 'hex')).join(' ')
 
   txout.size = offset + txout.scriptPubKeyLength
   return txout
@@ -100,4 +106,6 @@ function readUInt64LE(buf, offset) {
 // test
 var parser = new Parser()
 var tx = new Buffer('0100000001278d8a8b89da91ea532067cfed24003e1018048700cf6a9858035c510a1f1272010000006c493046022100b8f613c22981ef3781e5065a7b97e75e36cd6c2dd243d9e157224b32a4252de70221008afdd13dc0de16f5c560ac185f54e03956ad64c5633c76303ae6d3e76cb2d2b3012102ff0c56a6af3e721dbda5ce23b6e9cd5d9398f14c091ae42d89d963a5646f1d3cffffffff0140420f00000000001976a91430fc1ddd198e6f43edcbbf3d574179a0d15c620a88ac00000000', 'hex')
-console.dir(parser.parse(tx));
+console.dir(parser.parse(tx))
+console.dir(parser.parse(tx).inputs);
+console.dir(parser.parse(tx).outputs);
