@@ -2,16 +2,10 @@ var buffertools = require('buffertools')
 buffertools.extend()
 var constants = require('./constants')
 
-module.exports = Script
-
-function Script () {
-  if (!(this instanceof Script))
-    return new Script()
-  this.stack = []
-}
+var script = module.exports
 
 // hex to readable
-Script.prototype.decode = function (buf) {
+script.decode = function (buf) {
   var instructions = []
   var offset = 0
   var byte, length
@@ -44,7 +38,7 @@ Script.prototype.decode = function (buf) {
 }
 
 // readable to hex
-Script.prototype.encode = function (instructions) {
+script.encode = function (instructions) {
   var buf = new Buffer(0, 'hex')
   var instr
   for (var i = 0; i < instructions.length; i++) {
@@ -62,12 +56,11 @@ Script.prototype.encode = function (instructions) {
 }
 
 // interpreter
-Script.prototype.run = function (args) {
+script.run = function (args) {
 }
 
 // test
 var spk = new Buffer('76a91430fc1ddd198e6f43edcbbf3d574179a0d15c620a88ac', 'hex')
-var script = new Script()
 
 var decoded = script.decode(spk)
 console.log(spk.toString('hex'));
