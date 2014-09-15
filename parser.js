@@ -1,7 +1,5 @@
 module.exports = Parser
 
-
-
 function Parser() {
   if (!(this instanceof Parser))
     return new Parser()
