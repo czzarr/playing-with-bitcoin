@@ -1,4 +1,5 @@
 var script = require('./script')
+var utils = require('bitcoin-buffer')
 
 module.exports = Parser
 
@@ -12,7 +13,7 @@ Parser.prototype.parse = function (buf) {
   var tx = {}
   tx.version = buf.readUInt32LE(0)
 
-  var inputsCount = readVarInt(buf, 4)
+  var inputsCount = utils.readVarInt(buf, 4)
   var offset = inputsCount.offset
   tx.inputsCount = inputsCount.res
 
@@ -23,7 +24,7 @@ Parser.prototype.parse = function (buf) {
     offset += input.size
   }
 
-  var outputsCount = readVarInt(buf, offset)
+  var outputsCount = utils.readVarInt(buf, offset)
   offset = outputsCount.offset
   tx.outputsCount = outputsCount.res
 
@@ -44,7 +45,7 @@ Parser.prototype.parseIn = function (buf) {
   txin.prevHash = buf.slice(0, 32).toString('hex')
   txin.outputIndex = buf.readUInt32LE(32)
 
-  var scriptLength = readVarInt(buf, 36)
+  var scriptLength = utils.readVarInt(buf, 36)
   var offset = scriptLength.offset
   txin.scriptLength = scriptLength.res
   txin.scriptSig = {}
@@ -59,9 +60,9 @@ Parser.prototype.parseIn = function (buf) {
 Parser.prototype.parseOut = function (buf) {
   var txout = {}
 
-  txout.value = readUInt64LE(buf, 0)
+  txout.value = utils.readUInt64LE(buf, 0)
 
-  var scriptPubKeyLength = readVarInt(buf, 8)
+  var scriptPubKeyLength = utils.readVarInt(buf, 8)
   var offset = scriptPubKeyLength.offset
   txout.scriptPubKeyLength = scriptPubKeyLength.res
   txout.scriptPubKey = {}
@@ -70,37 +71,6 @@ Parser.prototype.parseOut = function (buf) {
 
   txout.size = offset + txout.scriptPubKeyLength
   return txout
-}
-
-function readVarInt (buf, offset) {
-  if (!offset)
-    offset = 0
-
-  var res, size
-
-  if (buf[offset] < 0xfd) {
-    res = buf.readUInt8(offset)
-    size = 1
-  } else if (buf[offset] === 0xfd) {
-    res = buf.readUInt16LE(offset+1)
-    size = 3
-  } else if (buf[offset] === 0xfe) {
-    res = buf.readUInt32LE(offset+1)
-    size = 5
-  } else if (buf[offset] === 0xff) {
-    res = readUInt64LE(buf, offset+1)
-    size = 9
-  }
-
-  return { res: res, offset: offset + size }
-}
-
-https://github.com/bitcoinjs/bitcoinjs-lib/blob/cc98600154bf921acaff2efd907c1fcec08232e8/src/bufferutils.js
-function readUInt64LE(buf, offset) {
-  var a = buf.readUInt32LE(offset)
-  var b = buf.readUInt32LE(offset + 4)
-  b *= 0x100000000
-  return b + a
 }
 
 // test
