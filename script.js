@@ -1,6 +1,6 @@
 var buffertools = require('buffertools')
 buffertools.extend()
-var constants = require('./constants')
+var constants = require('bitcoin-constants')
 
 var script = module.exports
 

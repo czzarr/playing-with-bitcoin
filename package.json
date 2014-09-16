@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "bitcoin-buffer": "^0.3.0",
+    "bitcoin-constants": "^0.1.0",
     "bitcoin-hash": "^0.2.0",
     "bs58": "^1.2.1",
     "buffertools": "^2.1.2",
