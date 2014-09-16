@@ -9,10 +9,11 @@
   "author": "Stanislas Marion <stanislas.marion@gmail.com> (http://github.com/czzarr)",
   "license": "MIT",
   "dependencies": {
+    "bitcoin-buffer": "^0.1.0",
+    "bitcoin-hash": "^0.2.0",
     "bs58": "^1.2.1",
     "coinkey": "^1.2.0",
     "coinstring": "^2.0.0",
     "elliptic": "^0.15.9",
-    "hash.js": "^0.3.2"
   }
 }

@@ -95,7 +95,7 @@ function readVarInt (buf, offset) {
   return { res: res, offset: offset + size }
 }
 
-https://github.com/bitcoinjs/bitcoinjs-lib/blob/cc98600154bf921acaff2efd907c1fcec08232e8/src/bufferutils.js
+// https://github.com/bitcoinjs/bitcoinjs-lib/blob/cc98600154bf921acaff2efd907c1fcec08232e8/src/bufferutils.js
 function readUInt64LE(buf, offset) {
   var a = buf.readUInt32LE(offset)
   var b = buf.readUInt32LE(offset + 4)
