@@ -2,7 +2,7 @@ var buffertools = require('buffertools')
 buffertools.extend()
 var EC = require('elliptic').ec
 var hash = require('bitcoin-hash')
-var opcodes = require('./constants').opcodes
+var opcodes = require('bitcoin-constants').opcodes
 var script = require('./script')
 var utils = require('bitcoin-buffer')
 
@@ -70,18 +70,19 @@ var transaction = buffertools.concat(
   tx.locktime,
   tx.hashcode
 )
-//console.log('script less tx');
+console.log('script less tx');
 //console.log(tx.version.toString('hex'));
 //console.log(tx.inputsCount.toString('hex'));
 //console.log(tx.ins[0].prevHash.toString('hex'));
 //console.log(tx.ins[0].outputIndex.toString('hex'));
 //console.log(tx.ins[0].scriptSigSize.toString('hex'));
-//console.log(tx.ins[0].scriptSig.toString('hex'));
+console.log(tx.ins[0].scriptSig.toString('hex'));
 //console.log(tx.ins[0].sequence.toString('hex'));
 //console.log(tx.outputsCount.toString('hex'));
 //console.log(tx.outs[0].value.toString('hex'));
 //console.log(tx.outs[0].scriptPubKeySize.toString('hex'));
 //console.log(tx.outs[0].scriptPubKey.hex.toString('hex'));
+console.log(tx.outs[0].scriptPubKey.asm.join(' '));
 //console.log(tx.locktime.toString('hex'));
 //console.log(tx.hashcode.toString('hex'));
 //console.log();
@@ -103,13 +104,6 @@ signature = signature.concat(new Buffer('01', 'hex'))
 //console.log(tx.ins[0].scriptSig.slice(3,-2).toString('hex'));
 
 // final transaction
-var finaltx = buffertools.concat(
-  tx.version,
-  tx.inputsCount,
-  tx.ins[0].prevHash,
-  tx.ins[0].outputIndex
-)
-
 var scriptSig = buffertools.concat(
   new Buffer(signature.length.toString(16), 'hex'),
   signature,
@@ -119,7 +113,11 @@ var scriptSig = buffertools.concat(
 
 var scriptSigSize = utils.numToVarInt(scriptSig.length)
 
-finaltx = finaltx.concat(
+var finaltx = buffertools.concat(
+  tx.version,
+  tx.inputsCount,
+  tx.ins[0].prevHash,
+  tx.ins[0].outputIndex,
   scriptSigSize,
   scriptSig,
   tx.ins[0].sequence,
@@ -130,20 +128,20 @@ finaltx = finaltx.concat(
   tx.locktime
 )
 console.log('final tx');
-console.log(tx.version.toString('hex'));
-console.log(tx.inputsCount.toString('hex'));
-console.log(tx.ins[0].prevHash.toString('hex'));
-console.log(tx.ins[0].outputIndex.toString('hex'));
-console.log(scriptSigSize.toString('hex'));
+//console.log(tx.version.toString('hex'));
+//console.log(tx.inputsCount.toString('hex'));
+//console.log(tx.ins[0].prevHash.toString('hex'));
+//console.log(tx.ins[0].outputIndex.toString('hex'));
+//console.log(scriptSigSize.toString('hex'));
 console.log(scriptSig.toString('hex'));
-console.log(tx.ins[0].sequence.toString('hex'));
-console.log(tx.outputsCount.toString('hex'));
-console.log(tx.outs[0].value.toString('hex'));
-console.log(tx.outs[0].scriptPubKeySize.toString('hex'));
-console.log(tx.outs[0].scriptPubKey.hex.toString('hex'));
+//console.log(tx.ins[0].sequence.toString('hex'));
+//console.log(tx.outputsCount.toString('hex'));
+//console.log(tx.outs[0].value.toString('hex'));
+//console.log(tx.outs[0].scriptPubKeySize.toString('hex'));
+//console.log(tx.outs[0].scriptPubKey.hex.toString('hex'));
 console.log(tx.outs[0].scriptPubKey.asm.join(' '));
-console.log(tx.locktime.toString('hex'));
+//console.log(tx.locktime.toString('hex'));
 
 console.log();
 console.log();
-console.log(finaltx.toString('hex'));
+//console.log(finaltx.toString('hex'));
