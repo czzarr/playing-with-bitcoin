@@ -6,34 +6,55 @@ var script = module.exports
 
 // hex to readable
 script.decode = function (buf) {
+  if (!buf)
+    return []
+
   var instructions = []
   var offset = 0
   var byte, length
+
   while (offset < buf.length) {
     byte = buf.readUInt8(offset)
-    if (byte >= 0x01 && byte <= 0x4b) {
-      instructions.push(byte.toString(16))
-      offset += 1
+    offset += 1
+
+    if (0x01 <= byte && byte <= 0x4b) {
       instructions.push(buf.slice(offset, offset + byte).toString('hex'))
       offset += byte
+      continue
+    }
+
+    if (byte === 0) {
+      instructions.push([])
+      continue
+    }
+
+    if (0x51 <= byte && byte <= 0x60) {
+      instructions.push([byte - 0x50])
+      continue
+    }
+
+    var opcode = constants.opcodesByVal[byte]
+
+    if (opcode === 'pushdata1') {
+      length = buf.readUInt8(offset)
+      instructions.push(buf.slice(offset, offset + length))
+      offset += 1 + length
+
+    } else if (opcode === 'pushdata2') {
+      length = buf.readUInt16LE(offset)
+      instructions.push(buf.slice(offset, offset + length))
+      offset += 2 + length
+
+    } else if (opcode === 'pushdata4') {
+      length = buf.readUInt32LE(offset)
+      instructions.push(buf.slice(offset, offset + length))
+      offset += 4 + length
+
     } else {
-      instructions.push(constants.opcodesByVal[byte])
-      offset += 1
-      if (byte === 0x4c) {
-        length = buf.readUInt8(offset)
-        instructions.push(buf.slice(offset, offset + length).toString('hex'))
-        offset += 1
-      } else if (byte === 0x4d) {
-        length = buf.readUInt16LE(offset)
-        instructions.push(buf.slice(offset, offset + length).toString('hex'))
-        offset += 2
-      } else if (byte === 0x4e) {
-        length = buf.readUInt32LE(offset)
-        instructions.push(buf.slice(offset, offset + length).toString('hex'))
-        offset += 4
-      }
+      instructions.push(opcode || byte)
     }
   }
+
   return instructions
 }
 
@@ -93,6 +114,5 @@ script.run = function (instructions, stack, tx) {
 var spk = new Buffer('76a91430fc1ddd198e6f43edcbbf3d574179a0d15c620a88ac', 'hex')
 
 var decoded = script.decode(spk)
-console.log(spk.toString('hex'));
-console.log(decoded.join(' '));
-console.log(script.encode(decoded).toString('hex'));
+console.log(decoded);
+//console.log(script.encode(decoded).toString('hex'));
