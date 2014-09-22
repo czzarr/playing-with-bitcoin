@@ -1,5 +1,4 @@
-var buffertools = require('buffertools')
-buffertools.extend()
+var BufferList = require('bitcoin-bufferlist')
 var constants = require('bitcoin-constants')
 
 var script = module.exports
@@ -18,7 +17,7 @@ script.decode = function (buf) {
     offset += 1
 
     if (0x01 <= byte && byte <= 0x4b) {
-      instructions.push(buf.slice(offset, offset + byte).toString('hex'))
+      instructions.push(Array.prototype.slice.call(buf.slice(offset, offset + byte), 0))
       offset += byte
       continue
     }
@@ -37,17 +36,17 @@ script.decode = function (buf) {
 
     if (opcode === 'pushdata1') {
       length = buf.readUInt8(offset)
-      instructions.push(buf.slice(offset, offset + length))
+      instructions.push(Array.prototype.slice.call(buf.slice(offset, offset + length), 0))
       offset += 1 + length
 
     } else if (opcode === 'pushdata2') {
       length = buf.readUInt16LE(offset)
-      instructions.push(buf.slice(offset, offset + length))
+      instructions.push(Array.prototype.slice.call(buf.slice(offset, offset + length), 0))
       offset += 2 + length
 
     } else if (opcode === 'pushdata4') {
       length = buf.readUInt32LE(offset)
-      instructions.push(buf.slice(offset, offset + length))
+      instructions.push(Array.prototype.slice.call(buf.slice(offset, offset + length), 0))
       offset += 4 + length
 
     } else {
@@ -60,20 +59,42 @@ script.decode = function (buf) {
 
 // readable to hex
 script.encode = function (instructions) {
-  var buf = new Buffer(0, 'hex')
-  var instr
+  var bl = new BufferList()
+
+  if (!instructions)
+    return bl.slice()
+
   for (var i = 0; i < instructions.length; i++) {
-    instr = instructions[i]
-    if (instr.match(/^OP_[A-Z0-9]*$/)) {
-      buf = buf.concat(new Buffer([constants.opcodes[instr]]))
-      if (instr === 'OP_PUSHDATA1' || instr === 'OP_PUSHDATA2' || instr === 'OP_PUSHDATA4') {
-        buf = buf.concat(new Buffer(instructions[i+1], 'hex'))
+    var instr = instructions[i]
+
+    if (Array.isArray(instr)) {
+      if (instr.length === 0) {
+        bl.writeUInt8(0)
+      } else if (instr.length === 1 && 0 < instr[0] && instr[0] <= 16){
+        bl.writeUInt8(0x50 + instr[0])
+      } else if ( 1 <= instr.length && instr.length <= 0x4b) {
+        bl.writeUInt8(instr.length)
+        bl.append(instr)
+      } else if (instr.length <= 0xff) {
+        bl.writeUInt8(constants.opcodes.OP_PUSHDATA1)
+        bl.writeUInt8(instr.length)
+        bl.append(new Buffer(instr))
+      } else if (instr.length <= 0xffff) {
+        bl.writeUInt8(constants.opcodes.OP_PUSHDATA2)
+        bl.writeUInt16LE(instr.length)
+        bl.append(new Buffer(instr))
+      } else {
+        bl.writeUInt8(constants.opcodes.OP_PUSHDATA4)
+        bl.writeUInt32LE(instr.length)
+        bl.append(new Buffer(instr))
       }
-    } else if (instr >= 0x01 && instr <= 0x4b) {
-      buf = buf.concat(new Buffer([instr]), new Buffer(instructions[i+1], 'hex'))
+      continue
     }
+
+    bl.append(constants.opcodes[instr])
   }
-  return buf
+
+  return bl.slice()
 }
 
 
@@ -120,5 +141,12 @@ script.encode = function (instructions) {
 var spk = new Buffer('76a91430fc1ddd198e6f43edcbbf3d574179a0d15c620a88ac', 'hex')
 
 var decoded = script.decode(spk)
-console.log(decoded);
-//console.log(script.encode(decoded).toString('hex'));
+//console.log(decoded);
+console.log(script.encode(decoded).toString('hex'));
+
+
+//var b = require('bcoin')
+
+//var d = b.script.decode(Array.prototype.slice.call(spk, 0))
+//console.log(d);
+//console.log(b.utils.toHex(b.script.encode(d)));
