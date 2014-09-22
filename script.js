@@ -76,38 +76,44 @@ script.encode = function (instructions) {
   return buf
 }
 
+
 // interpreter
-script.run = function (instructions, stack, tx) {
-  var instr
-  for (var i = 0; i < instructions.length; i++) {
-    instr = instructions[i]
-    if (Array.isArray(instr)) {
-      stack.push(instr)
-    } else if (instr === 'OP_DUP') {
-      if (stack.length === 0)
-        return false
-      stack.push(stack[stack.length - 1])
-    } else if (instr === 'OP_HASH160') {
-      if (stack.length === 0)
-        return false
-      var val = new Buffer(stack.pop(), 'hex')
-      stack.push(hash160(val).toString('hex'))
-    } else if (instr === 'OP_EQUALVERIFY') {
-      var val1 = stack.pop()
-      var val2 = stack.pop()
-      if (val1 !== val2)
-        stack.push(0)
-    } else if (instr === 'OP_CHECKSIG') {
-      var pubkey = stack.pop()
-      var sig = stack.pop()
-      var type = sig[sig.length - 1]
-      if (type !== 1)
-        return false
-      var res = ec.verify(tx, sig.slice(0, -1), pubkey)
-      stack.push(res ? [1] : [])
-    }
-  }
-}
+//script.run = function (instructions, stack, tx) {
+  //var instr
+  //for (var i = 0; i < instructions.length; i++) {
+    //instr = instructions[i]
+
+    //if (Array.isArray(instr)) {
+      //stack.push(instr)
+
+    //} else if (instr === 'OP_DUP') {
+      //if (stack.length === 0)
+        //return false
+      //stack.push(stack[stack.length - 1])
+
+    //} else if (instr === 'OP_HASH160') {
+      //if (stack.length === 0)
+        //return false
+      //var val = new Buffer(stack.pop(), 'hex')
+      //stack.push(hash160(val).toString('hex'))
+
+    //} else if (instr === 'OP_EQUALVERIFY') {
+      //var val1 = stack.pop()
+      //var val2 = stack.pop()
+      //if (bufferEqual(val1, val2))
+        //stack.push(0)
+
+    //} else if (instr === 'OP_CHECKSIG') {
+      //var pubkey = stack.pop()
+      //var sig = stack.pop()
+      //var type = sig[sig.length - 1]
+      //if (type !== 1)
+        //return false
+      //var res = ec.verify(tx, sig.slice(0, -1), pubkey)
+      //stack.push(res ? [1] : [])
+    //}
+  //}
+//}
 
 
 // test
