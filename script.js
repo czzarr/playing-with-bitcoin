@@ -137,6 +137,28 @@ script.run = function (instructions, stack, tx) {
   return true
 }
 
+script.subscript = function (s) {
+  if (!s)
+    return []
+
+  var lastSep = -1
+  for (var i = 0; i < s.length; i++) {
+    if (s[i] === 'OP_CODESEPARATOR') {
+      lastSep = i
+    } else if (s[i] === 'OP_CHECKSIG') {
+      break
+    }
+  }
+
+  var res = []
+  for (var i = lastSep + 1; i < s.length; i++) {
+    if (s[i] !== 'OP_CODESEPARATOR')
+      res.push(s[i])
+  }
+
+  return res
+}
+
 // test
 var spk = new Buffer('76a91430fc1ddd198e6f43edcbbf3d574179a0d15c620a88ac', 'hex')
 
