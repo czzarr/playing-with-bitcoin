@@ -20,9 +20,7 @@ addrRecv.writeUInt8(127)
 addrRecv.writeUInt8(0)
 addrRecv.writeUInt8(0)
 addrRecv.writeUInt8(1)
-var port = new Buffer(2)
-port.writeUInt16BE(test.port, 0)
-addrRecv.append(port)
+addrRecv.writeUInt16BE(test.port)
 var addrRecv = addrRecv.slice()
 console.log('net addrd', addrRecv);
 console.log('net addr length', addrRecv.slice().length);
@@ -51,7 +49,7 @@ msg.writeUInt32LE(test.magic)
 var command = new Buffer(12)
 command.fill(0)
 command.write('version', 'ascii')
-msg.append(command)
+msg.writePad('version', 12, 'ascii')
 // payload length
 msg.writeUInt32LE(version.length)
 // payload checksum
